@@ -1,15 +1,25 @@
-import { useState } from 'react';
+import { BrowserRouter, Routes, Route, Link } from 'react-router-dom';
+import Home from './pages/Home';
+import About from './pages/About';
 
 function App() {
-    const [count, setCount] = useState(0);
-
     return (
-        <div>
-            <h1>Task Counter</h1>
-            <p>You have {count} tasks today</p>
-            <button onClick={() => setCount(count + 1)}>Add Task</button>
-            <button onClick={() => setCount(count - 1)}>Remove Task</button>
-        </div>
+        <BrowserRouter>
+
+            {/* Navigation bar */}
+            <nav>
+                <Link to="/">Home</Link>
+                {' | '}
+                <Link to="/about">About</Link>
+            </nav>
+
+            {/* Pages */}
+            <Routes>
+                <Route path="/" element={<Home />} />
+                <Route path="/about" element={<About />} />
+            </Routes>
+
+        </BrowserRouter>
     );
 }
 
