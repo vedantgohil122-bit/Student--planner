@@ -2,19 +2,23 @@ const express = require('express');
 const mongoose = require('mongoose');
 require('dotenv').config();
 
-// Import the Task model
 const Task = require('./models/Task');
+const authRoutes = require('./routes/auth');
+const authMiddleware = require('./middleware/auth');
 
 const app = express();
 app.use(express.json());
+
+// Auth routes
+app.use('/api/auth', authRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
     res.json({ message: 'Server is running!' });
 });
 
-// GET /api/tasks - get all tasks from MongoDB
-app.get('/api/tasks', async (req, res) => {
+// GET /api/tasks - protected
+app.get('/api/tasks', authMiddleware, async (req, res) => {
     try {
         const tasks = await Task.find();
         res.json(tasks);
@@ -23,8 +27,8 @@ app.get('/api/tasks', async (req, res) => {
     }
 });
 
-// POST /api/tasks - create a new task in MongoDB
-app.post('/api/tasks', async (req, res) => {
+// POST /api/tasks - protected
+app.post('/api/tasks', authMiddleware, async (req, res) => {
     try {
         const { title, subject, status, deadline, notes } = req.body;
         const newTask = new Task({ title, subject, status, deadline, notes });
@@ -35,8 +39,8 @@ app.post('/api/tasks', async (req, res) => {
     }
 });
 
-// DELETE /api/tasks/:id - delete a task from MongoDB
-app.delete('/api/tasks/:id', async (req, res) => {
+// DELETE /api/tasks/:id - protected
+app.delete('/api/tasks/:id', authMiddleware, async (req, res) => {
     try {
         await Task.findByIdAndDelete(req.params.id);
         res.json({ message: 'Task deleted!' });
@@ -45,7 +49,7 @@ app.delete('/api/tasks/:id', async (req, res) => {
     }
 });
 
-// Connect to MongoDB then start server
+// Connect to MongoDB
 const PORT = process.env.PORT || 5000;
 const MONGO_URI = process.env.MONGO_URI;
 
